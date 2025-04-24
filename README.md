@@ -12,4 +12,4 @@ To start the web app, follow these steps:
     npm run dev
 ```
 
-- Default port: `5173`
+- Default port: `3000`
