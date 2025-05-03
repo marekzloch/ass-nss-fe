@@ -1,8 +1,14 @@
 <template>
- 
-
   <v-container class="fill-height" max-width="1200">
-    <Table />
+    <v-row>
+      <v-col cols="4">
+        <Table />
+      </v-col>
+      <v-col>
+        <Graph :data="graphData" />
+      </v-col>
+    </v-row>
+
     {{ JSON.stringify(measurements) }}
   </v-container>
 </template>
@@ -15,9 +21,17 @@
   }
 
   const measurements = ref();
+   const graphData = ref([])
 
   onMounted(async () => {
     measurements.value = await fetchMeasurements();
+    measurements.value.forEach(measurement => {
+      graphData.value.push({
+        id: measurement.id,
+        acoustic: measurement.acoustic,
+        created_at: measurement.created_at
+      })
+    })
   });
 
 </script>
