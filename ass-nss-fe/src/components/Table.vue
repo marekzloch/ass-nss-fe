@@ -10,7 +10,7 @@
       </thead>
       <tbody>
         <tr
-          v-for="item in dummy_data"
+          v-for="item in props.measurements"
           :key="item.id"
           :class="{
             'hoverable-row': true,
@@ -18,8 +18,8 @@
           }"
           @click="selectRow(item)"
         >
-          <td>{{ item.date }}</td>
-          <td>{{ item.time }}</td>
+          <td>{{ formatCzechDate(item.created_at) }}</td>
+          <td>{{ formatCzechTime(item.created_at) }}</td>
           <td>{{ item.acoustic }}</td>
           <td>
             <v-icon
@@ -53,29 +53,26 @@
   </template>
   
   <script lang="ts" setup>
+  import { formatCzechDate, formatCzechTime } from '@/helpers/stringFormatters';
+  import type { Measurement } from '@/pages/index.vue'
   import { ref } from 'vue'
   
-  interface Dummy {
-    id: number
-    date: string
-    time: string
-    acoustic: number
-  }
+  type Props = {
+    measurements: Measurement[];
+  };
+
+  const props = defineProps<Props>();
+
+  const emit = defineEmits<{
+    (e: 'select:measurement', item: Measurement): void
+  }>();
+
+  const dialog = ref(false);
+  const selectedRow = ref<Measurement | null>(null);
   
-  const dummy_data: Dummy[] = [
-    { id: 1, date: '12. 5. 2025', time: '14:15', acoustic: 15.9 },
-    { id: 2, date: '12. 5. 2025', time: '14:30', acoustic: 23.7 },
-    { id: 3, date: '12. 5. 2025', time: '15:00', acoustic: 26.2 },
-    { id: 4, date: '12. 5. 2025', time: '15:15', acoustic: 30.5 },
-    { id: 5, date: '12. 5. 2025', time: '15:30', acoustic: 35.6 },
-    { id: 6, date: '12. 5. 2025', time: '15:45', acoustic: 37.5 },
-  ]
-  
-  const dialog = ref(false)
-  const selectedRow = ref<Dummy | null>(null)
-  
-  function selectRow(item: Dummy) {
-    selectedRow.value = item
+  function selectRow(item: Measurement) {
+    selectedRow.value = item;
+    emit('select:measurement', item);
   }
   </script>
   
