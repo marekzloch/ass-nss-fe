@@ -13,10 +13,8 @@ const props = defineProps<Props>();
 
 function xLabel(isoString: string) {
   const date = new Date(isoString);
-
   const hours = date.getHours().toString().padStart(2, '0');
   const minutes = date.getMinutes().toString().padStart(2, '0');
-
   return `${hours}:${minutes}`;
 }
 
@@ -54,12 +52,12 @@ const axis = ref({
 
 <template>
   <Responsive class="w-full">
-    <template #main="{ width }">
+    <template #main="{ width, scales }">
 
-      <Chart 
-        :size="{ width: width, height: 420 }" 
-        :data="graphData" 
-        :margin="margin" 
+      <Chart
+        :size="{ width: width, height: 420 }"
+        :data="graphData"
+        :margin="margin"
         direction="horizontal"
         :axis="axis">
 
@@ -68,16 +66,31 @@ const axis = ref({
           <Grid strokeDasharray="2,2" />
 
           <Line :dataKeys="['timestamp', 'acoustic']" />
+          <!-- the point associated with the item you click on (in the table) cannot be highlighted through the basic vue3-charts functionality (wed have to edit code)
+          WE could draw it using the cx, cy coordinates but there is no association between them and the graph values
+          -->
+          <!--
+          <circle
+            v-if="props.selectedMeasurement && graphData.length"
+            getLabelForValue: function(d.id) {}
+            :cx="scales.x(graphData.find(d => d.id === props.selectedMeasurement.id)?.timestamp ?? 0)"
+            :cy="scales.y(graphData.find(d => d.id === props.selectedMeasurement.id)?.acoustic ?? 0)"
+            r="6"
+            fill="#FF5722"
+            stroke="#FFFFFF"
+            stroke-width="2"
+          />
+        -->
 
         </template>
 
         <template #widgets>
 
-          <Tooltip 
-            borderColor="#48CAE4" 
+          <Tooltip
+            borderColor="#48CAE4"
             :config="{
-              timestamp: { color: 'transparent' },  
-              id: { color: 'transparent' },         
+              timestamp: { color: 'transparent' },
+              id: { color: 'transparent' },
               acoustic: {
                 label: 'Akustická emise',
                 format: (val) => `${val.toFixed(1)}`
