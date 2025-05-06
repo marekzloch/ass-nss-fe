@@ -36,7 +36,7 @@
 
     <!-- Pagination Controls -->
   <v-row class="mt-4" align="center">
-    <v-col cols="12" class="d-flex justify-end">
+    <v-col cols="12" class="d-flex justify-center">
       <v-pagination
         v-model="currentPage"
         :length="totalPages"
