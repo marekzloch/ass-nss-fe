@@ -10,14 +10,14 @@
       </thead>
       <tbody>
         <tr
-          v-for="item in props.measurements"
-          :key="item.id"
-          :class="{
-            'hoverable-row': true,
-            'selected-row': selectedRow?.id === item.id,
-          }"
-          @click="selectRow(item)"
-        >
+        v-for="item in paginatedMeasurements"
+        :key="item.id"
+        :class="{
+          'hoverable-row': true,
+          'selected-row': selectedRow?.id === item.id,
+        }"
+        @click="selectRow(item)"
+      >
           <td>{{ formatCzechDate(item.created_at) }}</td>
           <td>{{ formatCzechTime(item.created_at) }}</td>
           <td>{{ item.acoustic }}</td>
@@ -33,7 +33,19 @@
         </tr>
       </tbody>
     </v-table>
-  
+
+    <!-- Pagination Controls -->
+  <v-row class="mt-4" align="center">
+    <v-col cols="12" class="d-flex justify-center">
+      <v-pagination
+        v-model="currentPage"
+        :length="totalPages"
+        :total-visible="itemsPerPage"
+        density="comfortable"
+      ></v-pagination>
+    </v-col>
+  </v-row>
+
     <v-dialog v-model="dialog" width="auto">
       <v-card
         min-width="400"
@@ -51,12 +63,12 @@
       </v-card>
     </v-dialog>
   </template>
-  
+
   <script lang="ts" setup>
   import { formatCzechDate, formatCzechTime } from '@/helpers/stringFormatters';
   import type { Measurement } from '@/pages/index.vue'
   import { ref } from 'vue'
-  
+
   type Props = {
     measurements: Measurement[];
   };
@@ -69,13 +81,29 @@
 
   const dialog = ref(false);
   const selectedRow = ref<Measurement | null>(null);
-  
+  //stores the page thats displayed upon accessing webapp
+  const currentPage = ref(1);
+  //can be changed
+  const itemsPerPage = 15;
+
+
+  const totalPages = computed(() => {
+    return Math.ceil(props.measurements.length / itemsPerPage);
+  });
+
+  // Compute paginated measurements
+  const paginatedMeasurements = computed(() => {
+    const start = (currentPage.value - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    return props.measurements.slice(start, end);
+});
+
   function selectRow(item: Measurement) {
     selectedRow.value = item;
     emit('select:measurement', item);
   }
   </script>
-  
+
   <style scoped>
   .hoverable-row {
     cursor: pointer;
@@ -88,4 +116,3 @@
     background-color: #E8F5E9; /* light green */
   }
   </style>
-  
