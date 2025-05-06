@@ -40,7 +40,7 @@
       <v-pagination
         v-model="currentPage"
         :length="totalPages"
-        :total-visible="15"
+        :total-visible="itemsPerPage"
         density="comfortable"
       ></v-pagination>
     </v-col>
