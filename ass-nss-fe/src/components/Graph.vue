@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Chart, Grid, Line, Responsive, Tooltip } from 'vue3-charts'
-import {computed} from "vue";
+import { computed } from "vue";
 import type { Measurement } from '@/pages/index.vue';
 import { formatCzechDate, formatCzechTime } from '@/helpers/stringFormatters';
 
@@ -52,64 +52,48 @@ const axis = ref({
 function getXPosition(selectedMeasurement: Measurement | null, data: typeof graphData.value, width: number) {
   if (!selectedMeasurement || !data.length) return 0;
   const index = data.findIndex(d => d.id === selectedMeasurement.id);
-  if (index === -1) return 0;
-  // Use exact x-value for first band and step size for others
+
   const firstX = parseFloat(document.querySelector('circle').getAttribute('cx') || '0'); // Exact x-value for index 0
   const secondX = parseFloat(document.querySelectorAll('circle')[1]?.getAttribute('cx') || '0');
+
   const stepSize = secondX - firstX; // Step size between band centers
-  // Calculate x-position: firstX + index * stepSize
   const xPosition = firstX + index * stepSize;
-  // Ensure xPosition is within chart bounds
-  const minX = margin.value.left;
-  const maxX = width - margin.value.right;
-  const clampedX = Math.max(minX, Math.min(maxX, xPosition));
-  // Log for debugging
-  console.log({ index, xPosition, clampedX, width });
-  return clampedX;
+  return xPosition;
 }
 </script>
 
 <template>
   <Responsive class="w-full">
-    <template #main="{ width, scales }">
+    <template #main="{ width, height }">
 
-      <Chart
-        :size="{ width: width, height: 420 }"
-        :data="graphData"
-        :margin="margin"
-        direction="horizontal"
-        :axis="axis">
+      <Chart :size="{ width: width, height: 420 }"
+      :data="graphData"
+      :margin="margin"
+      direction="horizontal"
+      :axis="axis">
 
         <template #layers>
-            <Grid strokeDasharray="2,2" />
-            <Line :dataKeys="['timestamp', 'acoustic']" />
-            <!-- Vertical line for selected measurement -->
-            <line
-              v-if="props.selectedMeasurement && graphData.length"
-              :x1="getXPosition(props.selectedMeasurement, graphData, width)"
-              :x2="getXPosition(props.selectedMeasurement, graphData, width)"
-              :y1="0"
-              :y2="420 - margin.top - margin.bottom"
-              stroke="#3333FF"
-              stroke-width="2"
-              stroke-dasharray="4,4"
-            />
-          </template>
+          <Grid strokeDasharray="2,2" />
+          <Line :dataKeys="['timestamp', 'acoustic']" />
+          <line v-if="props.selectedMeasurement && graphData.length"
+            :x1="getXPosition(props.selectedMeasurement, graphData, width)"
+            :x2="getXPosition(props.selectedMeasurement, graphData, width)"
+            :y1="0"
+            :y2="height" stroke="#3333FF" stroke-width="2" stroke-dasharray="4,4" />
+        </template>
 
         <template #widgets>
 
-          <Tooltip
-            borderColor="#48CAE4"
-            :config="{
-              timestamp: { color: 'transparent' },
-              id: { color: 'transparent' },
-              acoustic: {
-                label: 'Akustická emise',
-                format: (val) => `${val.toFixed(1)}`
-              },
-              time: { label: 'Čas' },
-              date: { label: 'Datum' }
-            }" />
+          <Tooltip borderColor="#48CAE4" :config="{
+            timestamp: { color: 'transparent' },
+            id: { color: 'transparent' },
+            acoustic: {
+              label: 'Akustická emise',
+              format: (val) => `${val.toFixed(1)}`
+            },
+            time: { label: 'Čas' },
+            date: { label: 'Datum' }
+          }" />
 
         </template>
 
