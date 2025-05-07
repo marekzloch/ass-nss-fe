@@ -48,6 +48,25 @@ const axis = ref({
   }
 })
 
+// Function to calculate x-position for the vertical line
+function getXPosition(selectedMeasurement: Measurement | null, data: typeof graphData.value, width: number) {
+  if (!selectedMeasurement || !data.length) return 0;
+  const index = data.findIndex(d => d.id === selectedMeasurement.id);
+  if (index === -1) return 0;
+  // Use exact x-value for first band and step size for others
+  const firstX = parseFloat(document.querySelector('circle').getAttribute('cx') || '0'); // Exact x-value for index 0
+  const secondX = parseFloat(document.querySelectorAll('circle')[1]?.getAttribute('cx') || '0');
+  const stepSize = secondX - firstX; // Step size between band centers
+  // Calculate x-position: firstX + index * stepSize
+  const xPosition = firstX + index * stepSize;
+  // Ensure xPosition is within chart bounds
+  const minX = margin.value.left;
+  const maxX = width - margin.value.right;
+  const clampedX = Math.max(minX, Math.min(maxX, xPosition));
+  // Log for debugging
+  console.log({ index, xPosition, clampedX, width });
+  return clampedX;
+}
 </script>
 
 <template>
@@ -62,27 +81,20 @@ const axis = ref({
         :axis="axis">
 
         <template #layers>
-
-          <Grid strokeDasharray="2,2" />
-
-          <Line :dataKeys="['timestamp', 'acoustic']" />
-          <!-- the point associated with the item you click on (in the table) cannot be highlighted through the basic vue3-charts functionality (wed have to edit code)
-          WE could draw it using the cx, cy coordinates but there is no association between them and the graph values
-          -->
-          <!--
-          <circle
-            v-if="props.selectedMeasurement && graphData.length"
-            getLabelForValue: function(d.id) {}
-            :cx="scales.x(graphData.find(d => d.id === props.selectedMeasurement.id)?.timestamp ?? 0)"
-            :cy="scales.y(graphData.find(d => d.id === props.selectedMeasurement.id)?.acoustic ?? 0)"
-            r="6"
-            fill="#FF5722"
-            stroke="#FFFFFF"
-            stroke-width="2"
-          />
-        -->
-
-        </template>
+            <Grid strokeDasharray="2,2" />
+            <Line :dataKeys="['timestamp', 'acoustic']" />
+            <!-- Vertical line for selected measurement -->
+            <line
+              v-if="props.selectedMeasurement && graphData.length"
+              :x1="getXPosition(props.selectedMeasurement, graphData, width)"
+              :x2="getXPosition(props.selectedMeasurement, graphData, width)"
+              :y1="0"
+              :y2="420 - margin.top - margin.bottom"
+              stroke="#3333FF"
+              stroke-width="2"
+              stroke-dasharray="4,4"
+            />
+          </template>
 
         <template #widgets>
 
