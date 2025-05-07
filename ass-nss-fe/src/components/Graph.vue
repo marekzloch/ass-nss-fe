@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Chart, Grid, Line, Responsive, Tooltip } from 'vue3-charts'
-import {computed} from "vue";
+import { computed } from "vue";
 import type { Measurement } from '@/pages/index.vue';
 import { formatCzechDate, formatCzechTime } from '@/helpers/stringFormatters';
 
@@ -13,10 +13,8 @@ const props = defineProps<Props>();
 
 function xLabel(isoString: string) {
   const date = new Date(isoString);
-
   const hours = date.getHours().toString().padStart(2, '0');
   const minutes = date.getMinutes().toString().padStart(2, '0');
-
   return `${hours}:${minutes}`;
 }
 
@@ -50,41 +48,52 @@ const axis = ref({
   }
 })
 
+// Function to calculate x-position for the vertical line
+function getXPosition(selectedMeasurement: Measurement | null, data: typeof graphData.value, width: number) {
+  if (!selectedMeasurement || !data.length) return 0;
+  const index = data.findIndex(d => d.id === selectedMeasurement.id);
+
+  const firstX = parseFloat(document.querySelector('circle').getAttribute('cx') || '0'); // Exact x-value for index 0
+  const secondX = parseFloat(document.querySelectorAll('circle')[1]?.getAttribute('cx') || '0');
+
+  const stepSize = secondX - firstX; // Step size between band centers
+  const xPosition = firstX + index * stepSize;
+  return xPosition;
+}
 </script>
 
 <template>
   <Responsive class="w-full">
-    <template #main="{ width }">
+    <template #main="{ width, height }">
 
-      <Chart 
-        :size="{ width: width, height: 420 }" 
-        :data="graphData" 
-        :margin="margin" 
-        direction="horizontal"
-        :axis="axis">
+      <Chart :size="{ width: width, height: 420 }"
+      :data="graphData"
+      :margin="margin"
+      direction="horizontal"
+      :axis="axis">
 
         <template #layers>
-
           <Grid strokeDasharray="2,2" />
-
           <Line :dataKeys="['timestamp', 'acoustic']" />
-
+          <line v-if="props.selectedMeasurement && graphData.length"
+            :x1="getXPosition(props.selectedMeasurement, graphData, width)"
+            :x2="getXPosition(props.selectedMeasurement, graphData, width)"
+            :y1="0"
+            :y2="height" stroke="#3333FF" stroke-width="2" stroke-dasharray="4,4" />
         </template>
 
         <template #widgets>
 
-          <Tooltip 
-            borderColor="#48CAE4" 
-            :config="{
-              timestamp: { color: 'transparent' },  
-              id: { color: 'transparent' },         
-              acoustic: {
-                label: 'Akustická emise',
-                format: (val) => `${val.toFixed(1)}`
-              },
-              time: { label: 'Čas' },
-              date: { label: 'Datum' }
-            }" />
+          <Tooltip borderColor="#48CAE4" :config="{
+            timestamp: { color: 'transparent' },
+            id: { color: 'transparent' },
+            acoustic: {
+              label: 'Akustická emise',
+              format: (val) => `${val.toFixed(1)}`
+            },
+            time: { label: 'Čas' },
+            date: { label: 'Datum' }
+          }" />
 
         </template>
 
