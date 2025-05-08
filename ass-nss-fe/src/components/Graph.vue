@@ -49,8 +49,8 @@ const axis = ref({
 })
 
 // Function to calculate x-position for the vertical line
-function getXPosition(selectedMeasurement: Measurement | null, data: typeof graphData.value, width: number) {
-  if (!selectedMeasurement || !data.length) return 0;
+function getXPosition(selectedMeasurement: Measurement, data: typeof graphData.value, width: number) {
+  if (selectedMeasurement != null || !data.length) return 0;
   const index = data.findIndex(d => d.id === selectedMeasurement.id);
 
   const firstX = parseFloat(document.querySelector('circle').getAttribute('cx') || '0'); // Exact x-value for index 0
@@ -75,7 +75,7 @@ function getXPosition(selectedMeasurement: Measurement | null, data: typeof grap
         <template #layers>
           <Grid strokeDasharray="2,2" />
           <Line :dataKeys="['timestamp', 'acoustic']" />
-          <line v-if="props.selectedMeasurement && graphData.length"
+          <line v-if="props.selectedMeasurement != null && graphData.length"
             :x1="getXPosition(props.selectedMeasurement, graphData, width)"
             :x2="getXPosition(props.selectedMeasurement, graphData, width)"
             :y1="0"

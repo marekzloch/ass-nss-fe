@@ -3,7 +3,7 @@ import type { Measurement } from '@/pages/index.vue';
 
 type Props = {
   measurements: Measurement[];
-  selectedMeasurement: Measurement | null;
+  selectedMeasurement: Measurement;
 };
 
 const props = defineProps<Props>();
@@ -22,10 +22,8 @@ const isLastMeasurement = computed(() => currentIndex.value === props.measuremen
 function switchToPrevious() {
   const currentIndex = props.measurements.findIndex(m => m.id === props.selectedMeasurement.id);
   if (currentIndex > 0) {
-    console.log(props.selectedMeasurement.id);
     const selectedMeasurement = props.measurements[currentIndex - 1];
     emit('select:measurement', selectedMeasurement);
-    console.log(selectedMeasurement.id);
   }
 }
 
