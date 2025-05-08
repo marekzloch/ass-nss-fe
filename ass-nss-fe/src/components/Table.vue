@@ -70,8 +70,9 @@
   import { ref } from 'vue'
 
   type Props = {
-    measurements: Measurement[];
-  };
+  measurements: Measurement[];
+  selectedMeasurement: Measurement | null;
+};
 
   const props = defineProps<Props>();
 
@@ -102,7 +103,13 @@
     selectedRow.value = item;
     emit('select:measurement', item);
   }
+
+  watch(() => props.selectedMeasurement, (newMeasurement) => {
+  selectedRow.value = newMeasurement;
+}, { immediate: true });
+
   </script>
+
 
   <style scoped>
   .hoverable-row {
