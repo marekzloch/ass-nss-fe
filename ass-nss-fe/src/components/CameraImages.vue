@@ -2,13 +2,38 @@
 import type { Measurement } from '@/pages/index.vue';
 
 type Props = {
+  measurements: Measurement[];
   selectedMeasurement: Measurement;
 };
 
 const props = defineProps<Props>();
 
-//TODO - add emits for navigation buttons 
+const emit = defineEmits<{
+    (e: 'select:measurement', item: Measurement): void
+  }>();
 
+const currentIndex = computed(() => {
+  return props.measurements.findIndex(m => m.id === props.selectedMeasurement?.id) || 0;
+});
+
+const isFirstMeasurement = computed(() => currentIndex.value === 0);
+const isLastMeasurement = computed(() => currentIndex.value === props.measurements.length - 1);
+
+function switchToPrevious() {
+  const currentIndex = props.measurements.findIndex(m => m.id === props.selectedMeasurement.id);
+  if (currentIndex > 0) {
+    const selectedMeasurement = props.measurements[currentIndex - 1];
+    emit('select:measurement', selectedMeasurement);
+  }
+}
+
+function switchToNext() {
+  const currentIndex = props.measurements.findIndex(m => m.id === props.selectedMeasurement.id);
+  if (currentIndex < props.measurements.length - 1) {
+    const selectedMeasurement = props.measurements[currentIndex + 1]
+    emit('select:measurement', selectedMeasurement);
+  }
+}
 </script>
 
 <template>
@@ -16,7 +41,11 @@ const props = defineProps<Props>();
   <v-row class="h-50 d-flex justify-center align-center h">
 
     <v-col cols="1" class="d-flex justify-end">
-      <v-btn icon>
+      <v-btn
+        v-if="!isFirstMeasurement"
+        icon
+        @click="switchToPrevious"
+      >
         <v-icon>mdi-chevron-left</v-icon>
       </v-btn>
     </v-col>
@@ -38,7 +67,11 @@ const props = defineProps<Props>();
     </v-col>
 
     <v-col cols="1" class="d-flex justify-start">
-      <v-btn icon>
+      <v-btn
+        v-if="!isLastMeasurement"
+        icon
+        @click="switchToNext"
+      >
         <v-icon>mdi-chevron-right</v-icon>
       </v-btn>
     </v-col>

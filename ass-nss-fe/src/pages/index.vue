@@ -37,21 +37,27 @@ onMounted(async () => {
     <v-row>
       <v-col cols="4">
 
-        <Table 
-          :measurements="measurements" 
-          @select:measurement="selectMeasurement" />
+        <Table
+          :measurements="measurements"
+          :selectedMeasurement="selectedMeasurement"
+          @select:measurement="selectMeasurement"
+          />
 
       </v-col>
 
       <v-col>
 
-        <Graph 
-          :measurements="measurements" 
-          :selectedMeasurement="selectedMeasurement" />
+        <Graph
+          :measurements="measurements"
+          :selectedMeasurement="selectedMeasurement"
+          />
 
-        <CameraImages 
-          v-if="selectedMeasurement" 
-          :selectedMeasurement="selectedMeasurement" />
+        <CameraImages
+          v-if="selectedMeasurement"
+          @select:measurement="selectMeasurement"
+          :measurements="measurements"
+          :selectedMeasurement="selectedMeasurement"
+           />
 
       </v-col>
     </v-row>
