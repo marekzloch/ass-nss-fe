@@ -20,42 +20,51 @@
   }
 
   async function fetchMeasurements () {
+    
     const res = await fetch('/demo/fakeMeasurements.json', {
       headers: { 'Cache-Control': 'no-cache' },
-    })
-    const d = await res.json()
-    return d.data
-  }
+    });
+    
+    const d = await res.json();
+    return d.data;
+
+  };
 
   onMounted(async () => {
-    measurements.value = await fetchMeasurements()
-  })
+    measurements.value = await fetchMeasurements();
+  });
 
 
-  const dateFrom = ref('')
-  const dateTo = ref('')
+  const dateFrom = ref('');
+  const dateTo = ref('');
 
 
   function toDayStart (dateStr: string): Date | null {
-    return dateStr ? new Date(`${dateStr}T00:00:00`) : null
-  }
+    return dateStr ? new Date(`${dateStr}T00:00:00`) : null;
+  };
+
   function toDayEnd (dateStr: string): Date | null {
-    return dateStr ? new Date(`${dateStr}T23:59:59`) : null
-  }
+    return dateStr ? new Date(`${dateStr}T23:59:59`) : null;
+  };
 
   const filteredMeasurements = computed(() => {
+  
     return measurements.value.filter(m => {
-      const measurementDate = new Date(m.created_at)
+  
+      const measurementDate = new Date(m.created_at);
 
-      const from = toDayStart(dateFrom.value)
-      const to = toDayEnd(dateTo.value)
+      const from = toDayStart(dateFrom.value);
+      const to = toDayEnd(dateTo.value);
 
-      const afterStart = !from || measurementDate >= from
-      const beforeEnd = !to || measurementDate <= to
+      const afterStart = !from || measurementDate >= from;
+      const beforeEnd = !to || measurementDate <= to;
 
-      return afterStart && beforeEnd
+      return afterStart && beforeEnd;
+
     })
-  })
+  });
+
+
 </script>
 
 <template>
@@ -89,7 +98,7 @@
       <v-col cols="4">
 
         <Table
-          :measurements="measurements"
+          :measurements="filteredMeasurements"
           :selectedMeasurement="selectedMeasurement"
           @select:measurement="selectMeasurement"
           />
@@ -99,21 +108,17 @@
       <v-col>
 
         <Graph
-          :measurements="measurements"
+          :measurements="filteredMeasurements"
           :selectedMeasurement="selectedMeasurement"
           />
 
         <CameraImages
           v-if="selectedMeasurement"
-          @select:measurement="selectMeasurement"
-          :measurements="measurements"
+          :measurements="filteredMeasurements"
           :selectedMeasurement="selectedMeasurement"
+          @select:measurement="selectMeasurement"
            />
 
-        <CameraImages
-          v-if="selectedMeasurement"
-          :selected-measurement="selectedMeasurement"
-        />
       </v-col>
     </v-row>
   </v-container>
