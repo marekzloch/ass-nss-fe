@@ -22,7 +22,7 @@ const graphData = computed(() => {
   return props.measurements.map(d => {
     return {
       id: d.id,
-      acoustic: d.acoustic,
+      acoustic: d.acustic,
       date: formatCzechDate(d.created_at),
       time: formatCzechTime(d.created_at),
       timestamp: new Date(d.created_at).getTime(),

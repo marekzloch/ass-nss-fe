@@ -20,7 +20,7 @@
       >
           <td>{{ formatCzechDate(item.created_at) }}</td>
           <td>{{ formatCzechTime(item.created_at) }}</td>
-          <td>{{ item.acoustic }}</td>
+          <td>{{ item.acustic }}</td>
           <td>
             <v-icon
               icon="mdi-information-outline"
@@ -40,7 +40,7 @@
       <v-pagination
         v-model="currentPage"
         :length="totalPages"
-        :total-visible="itemsPerPage"
+        :total-visible="7"
         density="comfortable"
       ></v-pagination>
     </v-col>

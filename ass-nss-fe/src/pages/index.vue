@@ -1,13 +1,14 @@
 <script lang="ts" setup>
-  import { computed, onMounted, ref } from 'vue'
-  import Table from '@/components/Table.vue'
-  import Graph from '@/components/Graph.vue'
-  import CameraImages from '@/components/CameraImages.vue'
+import { computed, onMounted, ref } from 'vue'
+import Table from '@/components/Table.vue'
+import Graph from '@/components/Graph.vue'
+import CameraImages from '@/components/CameraImages.vue'
+import axios from 'axios';
 
   export type Measurement = {
     id: string;
     created_at: string;
-    acoustic: number;
+    acustic: number;
     snapshot_rgb_camera: string;
     snapshot_hsi_camera: string;
   };
@@ -17,9 +18,11 @@
 
   function selectMeasurement (item: Measurement) {
     selectedMeasurement.value = item
-  }
+  };
 
-  async function fetchMeasurements () {
+  const baseApiUrl = 'https://5893-195-113-216-26.ngrok-free.app';
+
+  async function fetchDemoMeasurements () {
     
     const res = await fetch('/demo/fakeMeasurements.json', {
       headers: { 'Cache-Control': 'no-cache' },
@@ -30,14 +33,23 @@
 
   };
 
+  async function fetchMeasurements() {
+    
+    const res = await axios.get(`${baseApiUrl}/measurements`, {
+      headers: {
+        'ngrok-skip-browser-warning': 'skip-browser-warning'
+      }
+    });
+
+    return res.data.measurements;  
+  };
+
   onMounted(async () => {
     measurements.value = await fetchMeasurements();
   });
 
-
   const dateFrom = ref('');
   const dateTo = ref('');
-
 
   function toDayStart (dateStr: string): Date | null {
     return dateStr ? new Date(`${dateStr}T00:00:00`) : null;
@@ -48,9 +60,9 @@
   };
 
   const filteredMeasurements = computed(() => {
-  
+
     return measurements.value.filter(m => {
-  
+
       const measurementDate = new Date(m.created_at);
 
       const from = toDayStart(dateFrom.value);
