@@ -47,7 +47,7 @@ const axis = ref({
   secondary: {
   }
 })
-
+/* 
 // Function to calculate x-position for the vertical line
 function getXPosition(selectedMeasurement: Measurement, data: typeof graphData.value, width: number) {
   if (selectedMeasurement != null || !data.length) return 0;
@@ -59,7 +59,8 @@ function getXPosition(selectedMeasurement: Measurement, data: typeof graphData.v
   const stepSize = secondX - firstX; // Step size between band centers
   const xPosition = firstX + index * stepSize;
   return xPosition;
-}
+} */
+
 </script>
 
 <template>
@@ -75,11 +76,11 @@ function getXPosition(selectedMeasurement: Measurement, data: typeof graphData.v
         <template #layers>
           <Grid strokeDasharray="2,2" />
           <Line :dataKeys="['timestamp', 'acoustic']" />
-          <line v-if="props.selectedMeasurement != null && graphData.length"
+<!--           <line v-if="props.selectedMeasurement != null && graphData.length"
             :x1="getXPosition(props.selectedMeasurement, graphData, width)"
             :x2="getXPosition(props.selectedMeasurement, graphData, width)"
             :y1="0"
-            :y2="height" stroke="#3333FF" stroke-width="2" stroke-dasharray="4,4" />
+            :y2="height" stroke="#3333FF" stroke-width="2" stroke-dasharray="4,4" /> -->
         </template>
 
         <template #widgets>
