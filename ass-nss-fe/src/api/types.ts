@@ -1,6 +1,6 @@
 export type Config = {
     id: number;
-    interval: number;
+    interval_value: number;
     frequency: number;
     rgb_camera: boolean;
     hsi_camera: boolean;
@@ -15,4 +15,6 @@ export type Measurement = {
     snapshot_rgb_camera: string;
     snapshot_hsi_camera: string;
     config_id: number;
-  };
+};
+
+export type FetchStatus = 'idle' | 'loading' | 'success' | 'error';

@@ -4,7 +4,7 @@ import Table from '@/components/Table.vue'
 import Graph from '@/components/Graph.vue'
 import CameraImages from '@/components/CameraImages.vue'
 import { apiClient } from '@/api'
-import type { Measurement } from '@/api/types'
+import type { FetchStatus, Measurement } from '@/api/types'
 
 const measurements = ref<Measurement[]>([])
 const selectedMeasurement = ref<Measurement | null>(null)
@@ -13,6 +13,7 @@ function selectMeasurement (item: Measurement) {
   selectedMeasurement.value = item
 };
 
+const fetchStatus = ref<FetchStatus>('idle');
 
 async function fetchDemoMeasurements () {
   
@@ -26,10 +27,21 @@ async function fetchDemoMeasurements () {
 };
 
 async function fetchMeasurements() {
+
+  fetchStatus.value = 'loading';
   
   const res = await apiClient.get(`/measurements`);
 
-  return res.data.measurements;  
+  if (res.status !== 200) {
+    fetchStatus.value = 'error';
+    return;
+  }
+
+  if (res.data.measurements) {
+    fetchStatus.value = 'success';
+    return res.data.measurements;  
+  }
+
 };
 
 onMounted(async () => {
@@ -69,7 +81,7 @@ const filteredMeasurements = computed(() => {
 
 <template>
   <!-- Filtrovací pole pro datum -->
-  <v-row class="mb-4 pt-8 justify-center">
+  <v-row class="mb-4 pt-8 justify-center align-center">
     <v-col class="d-flex justify-space-between" cols="12" md="6" style="max-width: 800px;">
       <div style="width: 48%;">
         <label class="font-weight-medium mb-1">Datum od</label>
@@ -89,9 +101,20 @@ const filteredMeasurements = computed(() => {
         >
       </div>
     </v-col>
+    
+    <v-btn 
+      class="mt-6"
+      @click="fetchMeasurements">
+      Filtrovat
+    </v-btn>
+
   </v-row>
 
-  <v-container class="fill-height" max-width="1500">
+  <div class="text-center">
+    <v-progress-circular indeterminate v-if="fetchStatus === 'loading'" />
+  </div>
+
+  <v-container v-if="fetchStatus === 'success'" class="fill-height" max-width="1500">
 
     <!-- Tabulka + graf -->
     <v-row>
@@ -122,6 +145,17 @@ const filteredMeasurements = computed(() => {
       </v-col>
     </v-row>
   </v-container>
+
+  
+  <div class="text-center" v-if="fetchStatus === 'error'">
+    
+    <v-alert type="error" text="Chyba při načítání dat." />
+    
+    <v-btn class="mt-6" @click="fetchMeasurements">
+      Zkusit znovu
+    </v-btn>
+  </div>
+
 </template>
 
 <style scoped>
