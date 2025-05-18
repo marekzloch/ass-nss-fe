@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Chart, Grid, Line, Responsive, Tooltip } from 'vue3-charts'
 import { computed } from "vue";
-import type { Measurement } from '@/pages/index.vue';
 import { formatCzechDate, formatCzechTime } from '@/helpers/stringFormatters';
+import type { Measurement } from '@/api/types';
 
 type Props = {
   measurements: Measurement[];

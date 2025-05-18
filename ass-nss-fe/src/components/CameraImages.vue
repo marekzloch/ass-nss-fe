@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import type { Measurement } from '@/pages/index.vue';
+import type { Measurement } from '@/api/types';
+
 
 type Props = {
   measurements: Measurement[];

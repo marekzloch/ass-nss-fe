@@ -3,78 +3,66 @@ import { computed, onMounted, ref } from 'vue'
 import Table from '@/components/Table.vue'
 import Graph from '@/components/Graph.vue'
 import CameraImages from '@/components/CameraImages.vue'
-import axios from 'axios';
+import { apiClient } from '@/api'
+import type { Measurement } from '@/api/types'
 
-  export type Measurement = {
-    id: string;
-    created_at: string;
-    acustic: number;
-    snapshot_rgb_camera: string;
-    snapshot_hsi_camera: string;
-  };
+const measurements = ref<Measurement[]>([])
+const selectedMeasurement = ref<Measurement | null>(null)
 
-  const measurements = ref<Measurement[]>([])
-  const selectedMeasurement = ref<Measurement | null>(null)
+function selectMeasurement (item: Measurement) {
+  selectedMeasurement.value = item
+};
 
-  function selectMeasurement (item: Measurement) {
-    selectedMeasurement.value = item
-  };
 
-  const baseApiUrl = 'https://5893-195-113-216-26.ngrok-free.app';
-
-  async function fetchDemoMeasurements () {
-    
-    const res = await fetch('/demo/fakeMeasurements.json', {
-      headers: { 'Cache-Control': 'no-cache' },
-    });
-    
-    const d = await res.json();
-    return d.data;
-
-  };
-
-  async function fetchMeasurements() {
-    
-    const res = await axios.get(`${baseApiUrl}/measurements`, {
-      headers: {
-        'ngrok-skip-browser-warning': 'skip-browser-warning'
-      }
-    });
-
-    return res.data.measurements;  
-  };
-
-  onMounted(async () => {
-    measurements.value = await fetchMeasurements();
+async function fetchDemoMeasurements () {
+  
+  const res = await fetch('/demo/fakeMeasurements.json', {
+    headers: { 'Cache-Control': 'no-cache' },
   });
+  
+  const d = await res.json();
+  return d.data;
 
-  const dateFrom = ref('');
-  const dateTo = ref('');
+};
 
-  function toDayStart (dateStr: string): Date | null {
-    return dateStr ? new Date(`${dateStr}T00:00:00`) : null;
-  };
+async function fetchMeasurements() {
+  
+  const res = await apiClient.get(`/measurements`);
 
-  function toDayEnd (dateStr: string): Date | null {
-    return dateStr ? new Date(`${dateStr}T23:59:59`) : null;
-  };
+  return res.data.measurements;  
+};
 
-  const filteredMeasurements = computed(() => {
+onMounted(async () => {
+  measurements.value = await fetchMeasurements();
+});
 
-    return measurements.value.filter(m => {
+const dateFrom = ref('');
+const dateTo = ref('');
 
-      const measurementDate = new Date(m.created_at);
+function toDayStart (dateStr: string): Date | null {
+  return dateStr ? new Date(`${dateStr}T00:00:00`) : null;
+};
 
-      const from = toDayStart(dateFrom.value);
-      const to = toDayEnd(dateTo.value);
+function toDayEnd (dateStr: string): Date | null {
+  return dateStr ? new Date(`${dateStr}T23:59:59`) : null;
+};
 
-      const afterStart = !from || measurementDate >= from;
-      const beforeEnd = !to || measurementDate <= to;
+const filteredMeasurements = computed(() => {
 
-      return afterStart && beforeEnd;
+  return measurements.value.filter(m => {
 
-    })
-  });
+    const measurementDate = new Date(m.created_at);
+
+    const from = toDayStart(dateFrom.value);
+    const to = toDayEnd(dateTo.value);
+
+    const afterStart = !from || measurementDate >= from;
+    const beforeEnd = !to || measurementDate <= to;
+
+    return afterStart && beforeEnd;
+
+  })
+});
 
 
 </script>
