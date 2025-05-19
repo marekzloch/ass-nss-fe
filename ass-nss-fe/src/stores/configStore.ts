@@ -16,7 +16,7 @@ export const configStore = {
 
     },
 
-    // this function is called in order to populate the store with singe config data
+    // this function is called in order to populate the store with single config data
     fetchConfigById: async (id: number) => {
 
         if (configStore.configExists(id)) {

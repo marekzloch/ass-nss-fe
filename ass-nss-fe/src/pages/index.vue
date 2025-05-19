@@ -6,15 +6,18 @@ import CameraImages from '@/components/CameraImages.vue'
 import { apiClient } from '@/api'
 import type { FetchStatus, Measurement } from '@/api/types'
 
-const measurements = ref<Measurement[]>([])
-const selectedMeasurement = ref<Measurement | null>(null)
+// ref property to track measurements
+const measurements = ref<Measurement[]>([]);
+const selectedMeasurement = ref<Measurement | null>(null);
 
 function selectMeasurement (item: Measurement) {
   selectedMeasurement.value = item
 };
 
+// ref property to track fetch status
 const fetchStatus = ref<FetchStatus>('idle');
 
+// use in case of testing or demo purposes
 async function fetchDemoMeasurements () {
   
   const res = await fetch('/demo/fakeMeasurements.json', {
@@ -26,6 +29,7 @@ async function fetchDemoMeasurements () {
 
 };
 
+// api call to fetch measurements from the backend  
 async function fetchMeasurements() {
 
   fetchStatus.value = 'loading';
@@ -35,19 +39,19 @@ async function fetchMeasurements() {
   if (res.status !== 200) {
     fetchStatus.value = 'error';
     return;
-  }
+  };
 
   if (res.data.measurements) {
     fetchStatus.value = 'success';
     return res.data.measurements;  
-  }
+  };
 
 };
 
-onMounted(async () => {
-  measurements.value = await fetchMeasurements();
-});
+// initial fetch
+measurements.value = await fetchMeasurements();
 
+// filter related properties and methods
 const dateFrom = ref('');
 const dateTo = ref('');
 
@@ -109,14 +113,15 @@ const filteredMeasurements = computed(() => {
     </v-btn>
 
   </v-row>
-
-  <div class="text-center">
-    <v-progress-circular indeterminate v-if="fetchStatus === 'loading'" />
+  
+  <!-- Loading indicator -->
+  <div v-if="fetchStatus === 'loading'" class="text-center">
+    <v-progress-circular indeterminate/>
   </div>
 
   <v-container v-if="fetchStatus === 'success'" class="fill-height" max-width="1500">
 
-    <!-- Tabulka + graf -->
+    <!-- Tabulka + Graf + Foto -->
     <v-row>
       <v-col cols="4">
 
@@ -146,7 +151,7 @@ const filteredMeasurements = computed(() => {
     </v-row>
   </v-container>
 
-  
+  <!-- Error message -->
   <div class="text-center" v-if="fetchStatus === 'error'">
     
     <v-alert type="error" text="Chyba při načítání dat." />
@@ -154,6 +159,7 @@ const filteredMeasurements = computed(() => {
     <v-btn class="mt-6" @click="fetchMeasurements">
       Zkusit znovu
     </v-btn>
+
   </div>
 
 </template>
