@@ -13,6 +13,26 @@ function selectMeasurement (item: Measurement) {
   selectedMeasurement.value = item
 };
 
+const autoRefreshInterval = ref<number | null>(null)
+const isAutoRefreshing = ref(false)
+
+function startAutoRefresh() {
+  if (!autoRefreshInterval.value) {
+    isAutoRefreshing.value = true
+    autoRefreshInterval.value = setInterval(async () => {
+      measurements.value = await fetchMeasurements()
+    }, 10000) // 10 seconds
+  }
+}
+
+function stopAutoRefresh() {
+  if (autoRefreshInterval.value) {
+    clearInterval(autoRefreshInterval.value)
+    autoRefreshInterval.value = null
+    isAutoRefreshing.value = false
+  }
+}
+
 const fetchStatus = ref<FetchStatus>('idle');
 
 async function fetchDemoMeasurements () {
@@ -28,7 +48,7 @@ async function fetchDemoMeasurements () {
 
 async function fetchMeasurements() {
 
-  fetchStatus.value = 'loading';
+  //fetchStatus.value = 'loading';
   
   const res = await apiClient.get(`/measurements`);
 
@@ -85,30 +105,31 @@ const filteredMeasurements = computed(() => {
     <v-col class="d-flex justify-space-between" cols="12" md="6" style="max-width: 800px;">
       <div style="width: 48%;">
         <label class="font-weight-medium mb-1">Datum od</label>
-        <input
-          v-model="dateFrom"
-          class="filter-input"
-          type="date"
-        >
+        <input v-model="dateFrom" class="filter-input" type="date">
       </div>
 
       <div style="width: 48%;">
         <label class="font-weight-medium mb-1">Datum do</label>
-        <input
-          v-model="dateTo"
-          class="filter-input"
-          type="date"
-        >
+        <input v-model="dateTo" class="filter-input" type="date">
       </div>
     </v-col>
-    
-    <v-btn 
-      class="mt-6"
-      @click="fetchMeasurements">
+
+    <v-btn class="mt-6" @click="fetchMeasurements">
       Filtrovat
     </v-btn>
 
   </v-row>
+
+  <v-row class="mb-4 justify-center">
+    <v-btn class="mr-2" color="primary" @click="startAutoRefresh" :disabled="isAutoRefreshing">
+      Spustit automatické obnovení
+    </v-btn>
+
+    <v-btn color="error" @click="stopAutoRefresh" :disabled="!isAutoRefreshing">
+      Zastavit automatické obnovení
+    </v-btn>
+  </v-row>
+
 
   <div class="text-center">
     <v-progress-circular indeterminate v-if="fetchStatus === 'loading'" />
@@ -120,37 +141,27 @@ const filteredMeasurements = computed(() => {
     <v-row>
       <v-col cols="4">
 
-        <Table
-          :measurements="filteredMeasurements"
-          :selectedMeasurement="selectedMeasurement"
-          @select:measurement="selectMeasurement"
-          />
+        <Table :measurements="filteredMeasurements" :selectedMeasurement="selectedMeasurement"
+          @select:measurement="selectMeasurement" />
 
       </v-col>
 
       <v-col>
 
-        <Graph
-          :measurements="filteredMeasurements"
-          :selectedMeasurement="selectedMeasurement"
-          />
+        <Graph :measurements="filteredMeasurements" :selectedMeasurement="selectedMeasurement" />
 
-        <CameraImages
-          v-if="selectedMeasurement"
-          :measurements="filteredMeasurements"
-          :selectedMeasurement="selectedMeasurement"
-          @select:measurement="selectMeasurement"
-           />
+        <CameraImages v-if="selectedMeasurement" :measurements="filteredMeasurements"
+          :selectedMeasurement="selectedMeasurement" @select:measurement="selectMeasurement" />
 
       </v-col>
     </v-row>
   </v-container>
 
-  
+
   <div class="text-center" v-if="fetchStatus === 'error'">
-    
+
     <v-alert type="error" text="Chyba při načítání dat." />
-    
+
     <v-btn class="mt-6" @click="fetchMeasurements">
       Zkusit znovu
     </v-btn>
