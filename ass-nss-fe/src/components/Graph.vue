@@ -28,14 +28,14 @@ const graphData = computed(() => {
       timestamp: new Date(d.created_at).getTime(),
     }
   })
-});
+})
 
 const margin = ref({
   left: 0,
   top: 10,
   right: 0,
   bottom: 0
-});
+})
 
 const axis = ref({
   primary: {
@@ -47,7 +47,6 @@ const axis = ref({
   secondary: {
   }
 })
-
 /* 
 // Function to calculate x-position for the vertical line
 function getXPosition(selectedMeasurement: Measurement, data: typeof graphData.value, width: number) {
@@ -69,10 +68,10 @@ function getXPosition(selectedMeasurement: Measurement, data: typeof graphData.v
     <template #main="{ width, height }">
 
       <Chart :size="{ width: width, height: 420 }"
-        :data="graphData"
-        :margin="margin"
-        direction="horizontal"
-        :axis="axis">
+      :data="graphData"
+      :margin="margin"
+      direction="horizontal"
+      :axis="axis">
 
         <template #layers>
           <Grid strokeDasharray="2,2" />
@@ -86,18 +85,13 @@ function getXPosition(selectedMeasurement: Measurement, data: typeof graphData.v
 
         <template #widgets>
 
-          <Tooltip borderColor="#48CAE4" 
-            :config="{
-              timestamp: { 
-                color: 'transparent' 
-              },
-              id: { 
-                color: 'transparent' 
-              },
-              acoustic: {
-                label: 'Akustická emise',
-                format: (val: number) => `${val.toFixed(1)}`
-              },
+          <Tooltip borderColor="#48CAE4" :config="{
+            timestamp: { color: 'transparent' },
+            id: { color: 'transparent' },
+            acoustic: {
+              label: 'Akustická emise',
+              format: (val) => `${val.toFixed(1)}`
+            },
             time: { label: 'Čas' },
             date: { label: 'Datum' }
           }" />
