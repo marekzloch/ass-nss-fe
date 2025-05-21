@@ -1,8 +1,3 @@
-// this file contains types that are used in the api
-// if the app grows i would recommend to use openapi 
-// in order to generate types from swagger json
-// src: https://www.npmjs.com/package/openapi-typescript
-
 export type Config = {
     id: number;
     interval_value: number;
